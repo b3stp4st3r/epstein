@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Control Panel</title>
+    <style>
+        body { background: #0a0a0a; color: #00ff41; font-family: 'Courier New', monospace; padding: 30px; }
+        h1 { border-bottom: 2px solid #00ff41; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #1a5c1a; padding: 12px; text-align: left; }
+        th { background: #111; }
+        tr:hover { background: #111; }
+        .online { color: #00ff41; font-weight: bold; }
+        .offline { color: #ff3e3e; }
+    </style>
+</head>
+<body>
+    <h1>SYSTEM_LOG: ACTIVE_CONNECTIONS</h1>
+    <table id="agentTable">
+        <thead>
+            <tr>
+                <th>UUID</th>
+                <th>HOSTNAME</th>
+                <th>LAST_SEEN</th>
+                <th>STATUS</th>
+            </tr>
+        </thead>
+        <tbody id="data"></tbody>
+    </table>
+
+    <script>
+        async function fetchAgents() {
+            try {
+                const res = await fetch('/api/ping');
+                const agents = await res.json();
+                const tbody = document.getElementById('data');
+                tbody.innerHTML = '';
+
+                agents.forEach(agent => {
+                    // Если не было сигналов больше 1 минуты — оффлайн
+                    const lastSeenDate = new Date(agent.last_seen);
+                    const isOnline = (new Date() - lastSeenDate) < 60000;
+                    
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${agent.id}</td>
+                            <td>${agent.hostname}</td>
+                            <td>${lastSeenDate.toLocaleString()}</td>
+                            <td class="${isOnline ? 'online' : 'offline'}">
+                                ${isOnline ? '[ ONLINE ]' : '[ OFFLINE ]'}
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (e) { console.error("Update failed", e); }
+        }
+
+        setInterval(fetchAgents, 5000); // Обновлять каждые 5 сек
+        fetchAgents();
+    </script>
+</body>
+</html>
