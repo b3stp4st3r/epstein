@@ -214,8 +214,6 @@
                 <!-- Tabs -->
                 <div class="tabs">
                     <button class="tab active" data-tab="shell">💻 Shell</button>
-                    <button class="tab" data-tab="screen">🖥️ Screen</button>
-                    <button class="tab" data-tab="webcam">📷 Webcam</button>
                     <button class="tab" data-tab="message">💬 Message</button>
                     <button class="tab" data-tab="files">📁 Files</button>
                     <button class="tab" data-tab="system">⚙️ System</button>
@@ -232,34 +230,6 @@
                             <span class="terminal-prompt">$</span>
                             <input type="text" class="terminal-input" id="shellInput" placeholder="Enter command...">
                             <button class="btn btn-primary" onclick="executeShellCommand()">Execute</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="tab-content" id="screen">
-                    <div class="screen-viewer">
-                        <div class="viewer-controls">
-                            <button class="btn btn-primary" onclick="captureScreen()">📸 Capture Screen</button>
-                            <button class="btn btn-success" onclick="startScreenStream()">▶️ Start Stream</button>
-                            <button class="btn btn-danger" onclick="stopScreenStream()">⏹️ Stop Stream</button>
-                        </div>
-                        <div class="viewer-display">
-                            <img id="screenImage" src="" alt="Screen will appear here">
-                            <p class="empty-state" id="screenPlaceholder">Click "Capture Screen" to view</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="tab-content" id="webcam">
-                    <div class="webcam-viewer">
-                        <div class="viewer-controls">
-                            <button class="btn btn-primary" onclick="captureWebcam()">📸 Capture Photo</button>
-                            <button class="btn btn-success" onclick="startWebcamStream()">▶️ Start Stream</button>
-                            <button class="btn btn-danger" onclick="stopWebcamStream()">⏹️ Stop Stream</button>
-                        </div>
-                        <div class="viewer-display">
-                            <img id="webcamImage" src="" alt="Webcam will appear here">
-                            <p class="empty-state" id="webcamPlaceholder">Click "Capture Photo" to view</p>
                         </div>
                     </div>
                 </div>

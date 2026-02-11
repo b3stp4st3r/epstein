@@ -1,8 +1,6 @@
 // Global state
 let currentAgent = null;
 let agents = [];
-let screenStreamInterval = null;
-let webcamStreamInterval = null;
 let commandCount = 0;
 let confirmCallback = null;
 let processList = [];
@@ -102,10 +100,6 @@ function initTabs() {
     document.querySelectorAll('.tab').forEach(tab => {
         tab.addEventListener('click', () => {
             const tabName = tab.dataset.tab;
-            
-            // Stop all streams when switching tabs
-            stopScreenStream();
-            stopWebcamStream();
             
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -298,128 +292,6 @@ async function sendPowerCommand(action) {
             addLog('error', `Failed to send power command: ${e.message}`);
         }
     });
-}
-
-// Screen capture
-async function captureScreen() {
-    if (!currentAgent) return;
-    
-    try {
-        const res = await fetch('/api/command', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                agentId: currentAgent.id,
-                type: 'screen',
-                action: 'capture'
-            })
-        });
-        
-        const result = await res.json();
-        if (result.status === 'ok') {
-            // Command queued, wait for result
-            setTimeout(() => checkScreenResult(), 1000);
-        }
-    } catch (e) {
-        console.error('Screen capture error:', e);
-    }
-}
-
-async function checkScreenResult() {
-    if (!currentAgent) return;
-    
-    try {
-        const res = await fetch(`/api/command?agentId=${currentAgent.id}`);
-        const commands = await res.json();
-        
-        // Find completed screen command
-        const screenCmd = commands.find(c => c.type === 'screen' && c.status === 'completed' && c.output);
-        if (screenCmd && screenCmd.output) {
-            const img = document.getElementById('screenImage');
-            const placeholder = document.getElementById('screenPlaceholder');
-            img.src = screenCmd.output;
-            img.classList.add('active');
-            placeholder.style.display = 'none';
-        }
-    } catch (e) {
-        console.error('Check result error:', e);
-    }
-}
-
-function startScreenStream() {
-    if (!currentAgent || screenStreamInterval) return;
-    
-    captureScreen(); // First capture
-    screenStreamInterval = setInterval(captureScreen, 1000); // Every 1 second
-    addLog('info', `Started screen stream from ${currentAgent.hostname}`);
-}
-
-function stopScreenStream() {
-    if (screenStreamInterval) {
-        clearInterval(screenStreamInterval);
-        screenStreamInterval = null;
-        addLog('info', 'Stopped screen stream');
-    }
-}
-
-// Webcam capture
-async function captureWebcam() {
-    if (!currentAgent) return;
-    
-    try {
-        const res = await fetch('/api/command', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                agentId: currentAgent.id,
-                type: 'webcam',
-                action: 'capture'
-            })
-        });
-        
-        const result = await res.json();
-        if (result.status === 'ok') {
-            setTimeout(() => checkWebcamResult(), 1000);
-        }
-    } catch (e) {
-        console.error('Webcam capture error:', e);
-    }
-}
-
-async function checkWebcamResult() {
-    if (!currentAgent) return;
-    
-    try {
-        const res = await fetch(`/api/command?agentId=${currentAgent.id}`);
-        const commands = await res.json();
-        
-        const webcamCmd = commands.find(c => c.type === 'webcam' && c.status === 'completed' && c.output);
-        if (webcamCmd && webcamCmd.output) {
-            const img = document.getElementById('webcamImage');
-            const placeholder = document.getElementById('webcamPlaceholder');
-            img.src = webcamCmd.output;
-            img.classList.add('active');
-            placeholder.style.display = 'none';
-        }
-    } catch (e) {
-        console.error('Check webcam result error:', e);
-    }
-}
-
-function startWebcamStream() {
-    if (!currentAgent || webcamStreamInterval) return;
-    
-    captureWebcam(); // First capture
-    webcamStreamInterval = setInterval(captureWebcam, 1000); // Every 1 second
-    addLog('info', `Started webcam stream from ${currentAgent.hostname}`);
-}
-
-function stopWebcamStream() {
-    if (webcamStreamInterval) {
-        clearInterval(webcamStreamInterval);
-        webcamStreamInterval = null;
-        addLog('info', 'Stopped webcam stream');
-    }
 }
 
 // Message box
