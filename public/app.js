@@ -112,13 +112,6 @@ function initTabs() {
             
             tab.classList.add('active');
             document.getElementById(tabName).classList.add('active');
-            
-            // Auto-start stream when opening screen/webcam tab
-            if (tabName === 'screen') {
-                setTimeout(() => startScreenStream(), 500);
-            } else if (tabName === 'webcam') {
-                setTimeout(() => startWebcamStream(), 500);
-            }
         });
     });
 }
