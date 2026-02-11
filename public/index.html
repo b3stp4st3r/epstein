@@ -2,61 +2,265 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Control Panel</title>
-    <style>
-        body { background: #0a0a0a; color: #00ff41; font-family: 'Courier New', monospace; padding: 30px; }
-        h1 { border-bottom: 2px solid #00ff41; padding-bottom: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #1a5c1a; padding: 12px; text-align: left; }
-        th { background: #111; }
-        tr:hover { background: #111; }
-        .online { color: #00ff41; font-weight: bold; }
-        .offline { color: #ff3e3e; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C2 Control Panel</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>SYSTEM_LOG: ACTIVE_CONNECTIONS</h1>
-    <table id="agentTable">
-        <thead>
-            <tr>
-                <th>UUID</th>
-                <th>HOSTNAME</th>
-                <th>LAST_SEEN</th>
-                <th>STATUS</th>
-            </tr>
-        </thead>
-        <tbody id="data"></tbody>
-    </table>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">⚡</div>
+                <h2>C2 PANEL</h2>
+            </div>
+            
+            <nav class="nav">
+                <a href="#" class="nav-item active" data-view="dashboard">
+                    <span class="icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-view="agents">
+                    <span class="icon">💻</span>
+                    <span>Agents</span>
+                    <span class="badge" id="onlineCount">0</span>
+                </a>
+                <a href="#" class="nav-item" data-view="commands">
+                    <span class="icon">⚙️</span>
+                    <span>Commands</span>
+                </a>
+                <a href="#" class="nav-item" data-view="logs">
+                    <span class="icon">📝</span>
+                    <span>Logs</span>
+                </a>
+            </nav>
 
-    <script>
-        async function fetchAgents() {
-            try {
-                const res = await fetch('/api/ping');
-                const agents = await res.json();
-                const tbody = document.getElementById('data');
-                tbody.innerHTML = '';
+            <div class="sidebar-footer">
+                <div class="status-indicator">
+                    <span class="pulse"></span>
+                    <span>System Online</span>
+                </div>
+            </div>
+        </aside>
 
-                agents.forEach(agent => {
-                    // Если не было сигналов больше 1 минуты — оффлайн
-                    const lastSeenDate = new Date(agent.last_seen);
-                    const isOnline = (new Date() - lastSeenDate) < 60000;
-                    
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${agent.id}</td>
-                            <td>${agent.hostname}</td>
-                            <td>${lastSeenDate.toLocaleString()}</td>
-                            <td class="${isOnline ? 'online' : 'offline'}">
-                                ${isOnline ? '[ ONLINE ]' : '[ OFFLINE ]'}
-                            </td>
-                        </tr>
-                    `;
-                });
-            } catch (e) { console.error("Update failed", e); }
-        }
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-left">
+                    <h1 id="pageTitle">Dashboard</h1>
+                </div>
+                <div class="header-right">
+                    <div class="search-box">
+                        <input type="text" placeholder="Search agents..." id="searchInput">
+                    </div>
+                    <div class="user-info">
+                        <span>Admin</span>
+                    </div>
+                </div>
+            </header>
 
-        setInterval(fetchAgents, 5000); // Обновлять каждые 5 сек
-        fetchAgents();
-    </script>
+            <!-- Dashboard View -->
+            <div class="view active" id="dashboard">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon green">💻</div>
+                        <div class="stat-info">
+                            <h3 id="totalAgents">0</h3>
+                            <p>Total Agents</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon blue">🟢</div>
+                        <div class="stat-info">
+                            <h3 id="onlineAgents">0</h3>
+                            <p>Online</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon red">🔴</div>
+                        <div class="stat-info">
+                            <h3 id="offlineAgents">0</h3>
+                            <p>Offline</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon purple">⚡</div>
+                        <div class="stat-info">
+                            <h3 id="commandsExecuted">0</h3>
+                            <p>Commands Executed</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-activity">
+                    <h2>Recent Activity</h2>
+                    <div class="activity-list" id="activityList">
+                        <div class="activity-item">
+                            <span class="activity-time">Just now</span>
+                            <span class="activity-text">System initialized</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Agents View -->
+            <div class="view" id="agents">
+                <div class="agents-grid" id="agentsGrid">
+                    <!-- Agents will be populated here -->
+                </div>
+            </div>
+
+            <!-- Commands View -->
+            <div class="view" id="commands">
+                <div class="command-history" id="commandHistory">
+                    <h2>Command History</h2>
+                    <div class="history-list" id="historyList">
+                        <p class="empty-state">No commands executed yet</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Logs View -->
+            <div class="view" id="logs">
+                <div class="logs-container">
+                    <div class="logs-header">
+                        <h2>System Logs</h2>
+                        <button class="btn-clear" onclick="clearLogs()">Clear Logs</button>
+                    </div>
+                    <div class="logs-content" id="logsContent">
+                        <div class="log-entry info">
+                            <span class="log-time">[${new Date().toLocaleTimeString()}]</span>
+                            <span class="log-message">System started</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Agent Detail Modal -->
+    <div class="modal" id="agentModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2 id="modalAgentName">Agent Details</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="agent-detail-grid">
+                    <!-- Agent Info -->
+                    <div class="detail-section">
+                        <h3>Information</h3>
+                        <div class="detail-item">
+                            <span class="label">UUID:</span>
+                            <span class="value" id="detailId">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Hostname:</span>
+                            <span class="value" id="detailHostname">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Status:</span>
+                            <span class="value" id="detailStatus">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Last Seen:</span>
+                            <span class="value" id="detailLastSeen">-</span>
+                        </div>
+                    </div>
+
+                    <!-- Control Panel -->
+                    <div class="detail-section">
+                        <h3>Power Control</h3>
+                        <div class="control-buttons">
+                            <button class="btn btn-danger" onclick="sendPowerCommand('shutdown')">
+                                🔴 Shutdown
+                            </button>
+                            <button class="btn btn-warning" onclick="sendPowerCommand('restart')">
+                                🔄 Restart
+                            </button>
+                            <button class="btn btn-info" onclick="sendPowerCommand('sleep')">
+                                😴 Sleep
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab active" data-tab="shell">Shell</button>
+                    <button class="tab" data-tab="screen">Screen</button>
+                    <button class="tab" data-tab="webcam">Webcam</button>
+                    <button class="tab" data-tab="message">Message</button>
+                </div>
+
+                <!-- Tab Contents -->
+                <div class="tab-content active" id="shell">
+                    <div class="terminal">
+                        <div class="terminal-output" id="terminalOutput">
+                            <div class="terminal-line">Ready for commands...</div>
+                        </div>
+                        <div class="terminal-input-wrapper">
+                            <span class="terminal-prompt">$</span>
+                            <input type="text" class="terminal-input" id="shellInput" placeholder="Enter command...">
+                            <button class="btn btn-primary" onclick="executeShellCommand()">Execute</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="screen">
+                    <div class="screen-viewer">
+                        <div class="viewer-controls">
+                            <button class="btn btn-primary" onclick="captureScreen()">📸 Capture Screen</button>
+                            <button class="btn btn-success" onclick="startScreenStream()">▶️ Start Stream</button>
+                            <button class="btn btn-danger" onclick="stopScreenStream()">⏹️ Stop Stream</button>
+                        </div>
+                        <div class="viewer-display">
+                            <img id="screenImage" src="" alt="Screen will appear here">
+                            <p class="empty-state" id="screenPlaceholder">Click "Capture Screen" to view</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="webcam">
+                    <div class="webcam-viewer">
+                        <div class="viewer-controls">
+                            <button class="btn btn-primary" onclick="captureWebcam()">📸 Capture Photo</button>
+                            <button class="btn btn-success" onclick="startWebcamStream()">▶️ Start Stream</button>
+                            <button class="btn btn-danger" onclick="stopWebcamStream()">⏹️ Stop Stream</button>
+                        </div>
+                        <div class="viewer-display">
+                            <img id="webcamImage" src="" alt="Webcam will appear here">
+                            <p class="empty-state" id="webcamPlaceholder">Click "Capture Photo" to view</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="message">
+                    <div class="message-box">
+                        <h3>Send Message Box</h3>
+                        <div class="form-group">
+                            <label>Title:</label>
+                            <input type="text" id="msgTitle" placeholder="Message Title" value="System Alert">
+                        </div>
+                        <div class="form-group">
+                            <label>Message:</label>
+                            <textarea id="msgContent" rows="4" placeholder="Enter message...">Your system requires attention.</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Type:</label>
+                            <select id="msgType">
+                                <option value="info">Information</option>
+                                <option value="warning">Warning</option>
+                                <option value="error">Error</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="sendMessageBox()">Send Message</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
 </body>
 </html>

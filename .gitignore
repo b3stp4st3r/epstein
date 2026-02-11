@@ -1,5 +1,13 @@
 node_modules/
 .env
+.env.local
+.vercel
+dist/
+__pycache__/
+*.pyc
+*.exe
+*.spec
+.env
 .vscode/
 build/
 push.bat
