@@ -12,9 +12,10 @@ let isAuthenticated = false;
 function attemptLogin() {
     const input = document.getElementById('loginPassword');
     const error = document.getElementById('loginError');
-    const hash = Array.from(input.value).map(c => c.charCodeAt(0)).reduce((a,b) => a+b, 0);
+    const password = input.value;
     
-    if (hash === 2089) { // Sum of char codes for the password
+    // k5gchqtcucmgcoxdz15sl
+    if (password === 'k5gchqtcucmgcoxdz15sl') {
         isAuthenticated = true;
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('mainContainer').style.display = 'flex';
