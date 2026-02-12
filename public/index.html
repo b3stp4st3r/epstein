@@ -199,19 +199,15 @@
 
                 <!-- Tabs -->
                 <div class="tabs">
-                    <button class="tab active" data-tab="shell">💻 Shell</button>
-                    <button class="tab" data-tab="message">💬 Message</button>
-                    <button class="tab" data-tab="tts">🔊 TTS</button>
-                    <button class="tab" data-tab="url">🌐 URL</button>
-                    <button class="tab" data-tab="volume">🔉 Volume</button>
-                    <button class="tab" data-tab="cdtray">💿 CD Tray</button>
-                    <button class="tab" data-tab="input">⌨️ Input</button>
-                    <button class="tab" data-tab="spam">🔥 Spam</button>
-                    <button class="tab" data-tab="fun">🎮 Fun</button>
+                    <button class="tab active" data-tab="useful">🛠️ Useful</button>
+                    <button class="tab" data-tab="communication">💬 Communication</button>
+                    <button class="tab" data-tab="trolling">🎮 Trolling</button>
+                    <button class="tab" data-tab="system">⚙️ System</button>
                 </div>
 
                 <!-- Tab Contents -->
-                <div class="tab-content active" id="shell">
+                <div class="tab-content active" id="useful">
+                    <h3>💻 Shell Commands</h3>
                     <div class="terminal">
                         <div class="terminal-output" id="terminalOutput">
                             <div class="terminal-line">Ready for commands...</div>
@@ -222,11 +218,25 @@
                             <button class="btn btn-primary" onclick="executeShellCommand()">Execute</button>
                         </div>
                     </div>
+                    
+                    <br>
+                    <h3>⚡ Power Control</h3>
+                    <div class="control-buttons">
+                        <button class="btn btn-danger" onclick="sendPowerCommand('shutdown')">🔴 Shutdown</button>
+                        <button class="btn btn-warning" onclick="sendPowerCommand('restart')">🔄 Restart</button>
+                        <button class="btn btn-info" onclick="sendPowerCommand('sleep')">😴 Sleep</button>
+                    </div>
+                    
+                    <br>
+                    <h3>🔒 Lock PC</h3>
+                    <div class="control-buttons">
+                        <button class="btn btn-warning" onclick="lockPC()">🔒 Lock Workstation</button>
+                    </div>
                 </div>
 
-                <div class="tab-content" id="message">
+                <div class="tab-content" id="communication">
+                    <h3>💬 Message Box</h3>
                     <div class="message-box">
-                        <h3>Send Message Box</h3>
                         <div class="form-group">
                             <label>Title:</label>
                             <input type="text" id="msgTitle" placeholder="Message Title" value="System Alert">
@@ -245,140 +255,115 @@
                         </div>
                         <button class="btn btn-primary" onclick="sendMessageBox()">Send Message</button>
                     </div>
-                </div>
-
-                <div class="tab-content" id="tts">
-                    <div class="tts-panel">
-                        <h3>🔊 Text-to-Speech</h3>
-                        <div class="tts-box">
-                            <textarea id="ttsText" rows="6" placeholder="Enter text to speak..." class="tts-textarea"></textarea>
-                            <div class="tts-controls">
-                                <select id="ttsVoice" class="tts-select">
-                                    <option value="default">Default Voice</option>
-                                    <option value="male">Male Voice</option>
-                                    <option value="female">Female Voice</option>
-                                </select>
-                                <button class="btn btn-primary" onclick="speakText()">🔊 Speak</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="tab-content" id="url">
-                    <div class="message-box">
-                        <h3>🌐 Open URL</h3>
-                        <div class="form-group">
-                            <label>URL:</label>
-                            <input type="text" id="urlInput" placeholder="https://example.com" value="https://google.com">
-                        </div>
-                        <button class="btn btn-primary" onclick="openURL()">🌐 Open URL</button>
-                    </div>
-                </div>
-
-                <div class="tab-content" id="volume">
-                    <div class="message-box">
-                        <h3>🔉 Volume Control</h3>
-                        <div class="form-group">
-                            <label>Volume Level (0-100):</label>
-                            <input type="range" id="volumeSlider" min="0" max="100" value="50" oninput="document.getElementById('volumeValue').textContent = this.value">
-                            <span id="volumeValue">50</span>%
-                        </div>
-                        <div class="control-buttons">
-                            <button class="btn btn-primary" onclick="setVolume()">🔉 Set Volume</button>
-                            <button class="btn btn-warning" onclick="muteVolume()">🔇 Mute</button>
-                            <button class="btn btn-info" onclick="unmuteVolume()">🔊 Unmute</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="tab-content" id="cdtray">
-                    <div class="message-box">
-                        <h3>💿 CD Tray Control</h3>
-                        <div class="control-buttons">
-                            <button class="btn btn-primary" onclick="cdTray('open')">📤 Open Tray</button>
-                            <button class="btn btn-info" onclick="cdTray('close')">📥 Close Tray</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="tab-content" id="input">
-                    <div class="message-box">
-                        <h3>⌨️ Input Control</h3>
-                        <div class="control-buttons">
-                            <button class="btn btn-danger" onclick="blockInput()">🔒 Block Input</button>
-                            <button class="btn btn-success" onclick="unblockInput()">🔓 Unblock Input</button>
-                        </div>
-                        <br><br>
-                        <h3>🖱️ Cursor Control</h3>
-                        <div class="control-buttons">
-                            <button class="btn btn-danger" onclick="hideCursor()">👁️‍🗨️ Hide Cursor</button>
-                            <button class="btn btn-success" onclick="showCursor()">👁️ Show Cursor</button>
-                        </div>
-                        <br><br>
-                        <h3>🔒 Lock PC</h3>
-                        <div class="control-buttons">
-                            <button class="btn btn-warning" onclick="lockPC()">🔒 Lock Workstation</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="tab-content" id="spam">
-                    <div class="message-box">
-                        <h3>🔥 Window Spam</h3>
-                        <div class="form-group">
-                            <label>Program:</label>
-                            <select id="spamProgram">
-                                <option value="notepad">Notepad</option>
-                                <option value="cmd">CMD</option>
-                                <option value="calc">Calculator</option>
-                                <option value="messagebox">Message Box</option>
+                    
+                    <br>
+                    <h3>🔊 Text-to-Speech</h3>
+                    <div class="tts-box">
+                        <textarea id="ttsText" rows="6" placeholder="Enter text to speak..." class="tts-textarea"></textarea>
+                        <div class="tts-controls">
+                            <select id="ttsVoice" class="tts-select">
+                                <option value="default">Default Voice</option>
+                                <option value="male">Male Voice</option>
+                                <option value="female">Female Voice</option>
                             </select>
+                            <button class="btn btn-primary" onclick="speakText()">🔊 Speak</button>
                         </div>
-                        <div class="form-group">
-                            <label>Delay (ms):</label>
-                            <input type="number" id="spamDelay" value="1000" min="100" max="10000">
-                        </div>
-                        <div class="control-buttons">
-                            <button class="btn btn-danger" onclick="startSpam()">🔥 Start Spam</button>
-                            <button class="btn btn-success" onclick="stopSpam()">⏹️ Stop Spam</button>
-                        </div>
+                    </div>
+                    
+                    <br>
+                    <h3>🌐 Open URL</h3>
+                    <div class="form-group">
+                        <label>URL:</label>
+                        <input type="text" id="urlInput" placeholder="https://example.com" value="https://google.com">
+                    </div>
+                    <button class="btn btn-primary" onclick="openURL()">🌐 Open URL</button>
+                </div>
+
+                <div class="tab-content" id="trolling">
+                    <h3>🖱️ Mouse Shake</h3>
+                    <div class="control-buttons">
+                        <button class="btn btn-danger" onclick="startMouseShake()">🔥 Start Shake</button>
+                        <button class="btn btn-success" onclick="stopMouseShake()">⏹️ Stop Shake</button>
+                    </div>
+                    
+                    <br>
+                    <h3>🔄 Swap Mouse Buttons</h3>
+                    <div class="control-buttons">
+                        <button class="btn btn-warning" onclick="swapMouse()">🔄 Swap Buttons</button>
+                        <button class="btn btn-info" onclick="restoreMouse()">↩️ Restore Buttons</button>
+                    </div>
+                    
+                    <br>
+                    <h3>👁️ Cursor Control</h3>
+                    <div class="control-buttons">
+                        <button class="btn btn-danger" onclick="hideCursor()">👁️‍🗨️ Hide Cursor</button>
+                        <button class="btn btn-success" onclick="showCursor()">👁️ Show Cursor</button>
+                    </div>
+                    
+                    <br>
+                    <h3>⌨️ Block Input</h3>
+                    <div class="control-buttons">
+                        <button class="btn btn-danger" onclick="blockInput()">🔒 Block Input</button>
+                        <button class="btn btn-success" onclick="unblockInput()">🔓 Unblock Input</button>
+                    </div>
+                    
+                    <br>
+                    <h3>🔥 Window Spam</h3>
+                    <div class="form-group">
+                        <label>Program:</label>
+                        <select id="spamProgram">
+                            <option value="notepad">Notepad</option>
+                            <option value="cmd">CMD</option>
+                            <option value="calc">Calculator</option>
+                            <option value="messagebox">Message Box</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Delay (ms):</label>
+                        <input type="number" id="spamDelay" value="1000" min="100" max="10000">
+                    </div>
+                    <div class="control-buttons">
+                        <button class="btn btn-danger" onclick="startSpam()">🔥 Start Spam</button>
+                        <button class="btn btn-success" onclick="stopSpam()">⏹️ Stop Spam</button>
+                    </div>
+                    
+                    <br>
+                    <h3>🔊 System Sounds</h3>
+                    <div class="control-buttons">
+                        <button class="btn btn-danger" onclick="playSound('error')">❌ Error</button>
+                        <button class="btn btn-warning" onclick="playSound('warning')">⚠️ Warning</button>
+                        <button class="btn btn-info" onclick="playSound('info')">ℹ️ Info</button>
+                        <button class="btn btn-primary" onclick="playSound('question')">❓ Question</button>
                     </div>
                 </div>
 
-                <div class="tab-content" id="fun">
-                    <div class="message-box">
-                        <h3>🎮 Fun Commands</h3>
-                        
-                        <h4>🖱️ Mouse Shake</h4>
-                        <div class="control-buttons">
-                            <button class="btn btn-danger" onclick="startMouseShake()">🔥 Start Shake</button>
-                            <button class="btn btn-success" onclick="stopMouseShake()">⏹️ Stop Shake</button>
-                        </div>
-                        
-                        <br><br>
-                        <h4>🖱️ Swap Mouse Buttons</h4>
-                        <div class="control-buttons">
-                            <button class="btn btn-warning" onclick="swapMouse()">🔄 Swap Buttons</button>
-                            <button class="btn btn-info" onclick="restoreMouse()">↩️ Restore Buttons</button>
-                        </div>
-                        
-                        <br><br>
-                        <h4>🔊 System Sounds</h4>
-                        <div class="control-buttons">
-                            <button class="btn btn-danger" onclick="playSound('error')">❌ Error</button>
-                            <button class="btn btn-warning" onclick="playSound('warning')">⚠️ Warning</button>
-                            <button class="btn btn-info" onclick="playSound('info')">ℹ️ Info</button>
-                            <button class="btn btn-primary" onclick="playSound('question')">❓ Question</button>
-                        </div>
-                        
-                        <br><br>
-                        <h4>💻 Rename PC</h4>
-                        <div class="form-group">
-                            <label>New Name:</label>
-                            <input type="text" id="newPCName" placeholder="NewComputerName" maxlength="15">
-                        </div>
-                        <button class="btn btn-warning" onclick="renamePCFunc()">✏️ Rename PC (Restart Required)</button>
+                <div class="tab-content" id="system">
+                    <h3>🔉 Volume Control</h3>
+                    <div class="form-group">
+                        <label>Volume Level (0-100):</label>
+                        <input type="range" id="volumeSlider" min="0" max="100" value="50" oninput="document.getElementById('volumeValue').textContent = this.value">
+                        <span id="volumeValue">50</span>%
                     </div>
+                    <div class="control-buttons">
+                        <button class="btn btn-primary" onclick="setVolume()">🔉 Set Volume</button>
+                        <button class="btn btn-warning" onclick="muteVolume()">🔇 Mute</button>
+                        <button class="btn btn-info" onclick="unmuteVolume()">🔊 Unmute</button>
+                    </div>
+                    
+                    <br>
+                    <h3>💿 CD Tray Control</h3>
+                    <div class="control-buttons">
+                        <button class="btn btn-primary" onclick="cdTray('open')">📤 Open Tray</button>
+                        <button class="btn btn-info" onclick="cdTray('close')">📥 Close Tray</button>
+                    </div>
+                    
+                    <br>
+                    <h3>✏️ Rename PC</h3>
+                    <div class="form-group">
+                        <label>New Name:</label>
+                        <input type="text" id="newPCName" placeholder="NewComputerName" maxlength="15">
+                    </div>
+                    <button class="btn btn-warning" onclick="renamePCFunc()">✏️ Rename PC (Restart Required)</button>
                 </div>
             </div>
         </div>
