@@ -13,6 +13,7 @@ function attemptLogin() {
     
     if (password === 'k5gchqtcucmgcoxdz15sl') {
         isAuthenticated = true;
+        localStorage.setItem('epstein_auth', 'true');
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('mainContainer').style.display = 'flex';
         input.value = '';
@@ -22,6 +23,24 @@ function attemptLogin() {
         error.textContent = 'Invalid password';
         input.value = '';
     }
+}
+
+function checkAuth() {
+    const auth = localStorage.getItem('epstein_auth');
+    if (auth === 'true') {
+        isAuthenticated = true;
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainContainer').style.display = 'flex';
+        initApp();
+    }
+}
+
+function logout() {
+    localStorage.removeItem('epstein_auth');
+    isAuthenticated = false;
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('mainContainer').style.display = 'none';
+    location.reload();
 }
 
 document.getElementById('loginPassword')?.addEventListener('keypress', (e) => {
@@ -38,7 +57,7 @@ function initApp() {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    // App will init after login
+    checkAuth(); // Check if already logged in
 });
 
 // Notification system
@@ -942,4 +961,24 @@ document.getElementById('agentModal')?.addEventListener('click', (e) => {
     if (e.target.id === 'agentModal') {
         closeModal();
     }
+});
+
+// Mobile menu toggle
+function toggleMobileMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('mobileOverlay');
+    
+    if (sidebar && overlay) {
+        sidebar.classList.toggle('mobile-open');
+        overlay.classList.toggle('active');
+    }
+}
+
+// Close mobile menu when clicking nav item
+document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+            toggleMobileMenu();
+        }
+    });
 });
